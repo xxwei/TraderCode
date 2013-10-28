@@ -1,4 +1,9 @@
 //---- indicator parameters
+#import "Speech.dll"
+void InitSpeech();
+void TextOutForSpeech(string ptext);
+void TextOutForSpeechByInt(int i);
+#import
 extern int ExtDepth=12;
 extern int ExtDeviation=5;
 extern int ExtBackstep=3;
@@ -331,7 +336,8 @@ void Step_Over()
 					if(step_over1==false)
 					{
 							step_over1 = true;
-							Print("跨越高点 1");
+							Print(Symbol(),"跨越高点 1");
+							TextOutForSpeechByInt(1);
 					}
 				}
 				if(Bid<low1)
@@ -342,7 +348,8 @@ void Step_Over()
 					if(step_over2==false)
 					{
 							step_over2 = true;
-							Print("跨越低点 2");
+							Print(Symbol(),"跨越低点 2");
+							TextOutForSpeechByInt(2);
 					}
 				}
 		}
@@ -356,7 +363,8 @@ void Step_Over()
 					if(step_over3==false)
 					{
 							step_over3 = true;
-							Print("跨越高点 3");
+							Print(Symbol(),"跨越高点 3");
+							TextOutForSpeechByInt(3);
 					}
 				}
 				if(Bid<low2)
@@ -367,7 +375,8 @@ void Step_Over()
 					if(step_over4==false)
 					{
 							step_over4 = true;
-							Print("跨越低点 4");
+							Print(Symbol(),"跨越低点 4");
+							TextOutForSpeechByInt(4);
 					}
 				}
 		}
@@ -383,17 +392,54 @@ void Move_StopLess()
       {
          continue;
       }
-      
+      if(OrderType()==OP_BUY)
+      {
+         if(new_high)
+         {
+            double stopless = OrderStopLoss();
+            if(stopless<low1)
+            {
+               OrderModify(OrderTicket(),OrderOpenPrice(),low1,OrderTakeProfit(),0,Blue);
+            }
+         }
+         else
+         {
+            stopless = OrderStopLoss();
+            if(stopless<low2)
+            {
+               OrderModify(OrderTicket(),OrderOpenPrice(),low2,OrderTakeProfit(),0,Blue);
+            }
+         }
+      }
+      else if(OrderType()==OP_SELL)
+      {
+         if(new_high)
+         {
+            stopless = OrderStopLoss();
+            if(stopless>high2)
+            {
+               OrderModify(OrderTicket(),OrderOpenPrice(),high2,OrderTakeProfit(),0,Blue);
+            }
+         }
+         else
+         {
+            stopless = OrderStopLoss();
+            if(stopless>high1)
+            {
+               OrderModify(OrderTicket(),OrderOpenPrice(),high1,OrderTakeProfit(),0,Blue);
+            }
+         }
+      }
 	}
 }
+
 //+------------------------------------------------------------------+
 //| expert initialization function                                   |
 //+------------------------------------------------------------------+
 int init()
 {
 //----
-	
- 
+	InitSpeech();
 //----
  return(0);
 }
