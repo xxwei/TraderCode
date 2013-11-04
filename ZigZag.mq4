@@ -4,6 +4,7 @@ void InitSpeech();
 void TextOutForSpeech(string ptext);
 void TextOutForSpeechByInt(int i);
 #import
+int	Slippage = 20;
 extern int ExtDepth=12;
 extern int ExtDeviation=5;
 extern int ExtBackstep=3;
@@ -16,12 +17,19 @@ double BufChanelLow[1000];
 int level=3; // recounting's depth
 bool downloadhistory=false;
 bool new_high = false;
+bool can_open_postion = false;
 double	high1;
 double	high2;
 double	high3;
 double 	low1;
 double	low2;
 double	low3;
+int      high1_pos;
+int      high2_pos;
+int      high3_pos;
+int      low1_pos;
+int      low2_pos;
+int      low3_pos;
 
 bool 		step_over1;
 bool 		step_over2;
@@ -256,31 +264,37 @@ void CalcForZigZag()
  								if(j==1)
  								{
  									high1 =ZigzagBuffer[i];
+ 									high1_pos= i;
  									continue;
  								}
  								if(j==2)
  								{
  									low1 = ZigzagBuffer[i];
+ 									low1_pos = i;
  									continue;
  								}
  								if(j==3)
  								{
  									high2 = ZigzagBuffer[i];
+ 									high2_pos = i;
  									continue;
  								}
  								if(j==4)
  								{
  									low2 = ZigzagBuffer[i];
+ 									low2_pos = i;
  									continue;
  								}
  								if(j==5)
  								{
  									high3 = ZigzagBuffer[i];
+ 									high3_pos = i;
  									continue;
  								} 
  								if(j==6)
  								{
  									low3 = ZigzagBuffer[i];
+ 									low3_pos = i
  									//Print(high1,"--",high2,"--",high3,"--",low1,"--",low2,"--",low3);
  									break;
  								}
@@ -290,31 +304,37 @@ void CalcForZigZag()
  								if(j==1)
  								{
  									low1 =ZigzagBuffer[i];
+ 									low1_pos = i;
  									continue;
  								}
  								if(j==2)
  								{
  									high1 = ZigzagBuffer[i];
+ 									high1_pos = i;
  									continue;
  								}
  								if(j==3)
  								{
  									low2 = ZigzagBuffer[i];
+ 									low2_pos = i;
  									continue;
  								}
  								if(j==4)
  								{
  									high2 = ZigzagBuffer[i];
+ 									high2_pos = i;
  									continue;
  								}
  								if(j==5)
  								{
  									low3 = ZigzagBuffer[i];
+ 									low3_pos = i;
  									continue;
  								} 
  								if(j==6)
  								{
  									high3 = ZigzagBuffer[i];
+ 									high3_pos = i;
  									//Print(high1,"--",high2,"--",high3,"--",low1,"--",low2,"--",low3);
  									break;
  								}
@@ -397,18 +417,35 @@ void Move_StopLess()
          if(new_high)
          {
             double stopless = OrderStopLoss();
+            //Print("1---",stopless,"---low1---",low1);
             if(stopless<low1)
             {
-               OrderModify(OrderTicket(),OrderOpenPrice(),low1,OrderTakeProfit(),0,Blue);
+               if(Bid-low1<50*Point)
+               {
+                  OrderModify(OrderTicket(),OrderOpenPrice(),Bid-50*Point,OrderTakeProfit(),0,Blue);
+               }
+               else
+               {
+                  OrderModify(OrderTicket(),OrderOpenPrice(),low1,OrderTakeProfit(),0,Blue);
+               }
             }
          }
          else
          {
             stopless = OrderStopLoss();
+            //Print("2---",stopless,"---low2---",low2);
             if(stopless<low2)
             {
-               OrderModify(OrderTicket(),OrderOpenPrice(),low2,OrderTakeProfit(),0,Blue);
-            }
+               if(Bid-low2<50*Point)
+               {
+                  
+                  OrderModify(OrderTicket(),OrderOpenPrice(),Bid-50*Point,OrderTakeProfit(),0,Blue);
+               }
+               else
+               {
+                  OrderModify(OrderTicket(),OrderOpenPrice(),low2,OrderTakeProfit(),0,Blue);
+               }
+            }  
          }
       }
       else if(OrderType()==OP_SELL)
@@ -416,23 +453,82 @@ void Move_StopLess()
          if(new_high)
          {
             stopless = OrderStopLoss();
-            if(stopless>high2)
+            //Print("3---",stopless,"---high2---",high2);
+            if(stopless>high2||stopless==0)
             {
-               OrderModify(OrderTicket(),OrderOpenPrice(),high2,OrderTakeProfit(),0,Blue);
+               if(high2-Ask<50*Point)
+               {
+                  OrderModify(OrderTicket(),OrderOpenPrice(),Ask+50*Point,OrderTakeProfit(),0,Blue);
+               }
+               else
+               {
+                  OrderModify(OrderTicket(),OrderOpenPrice(),high2,OrderTakeProfit(),0,Blue);
+               }
             }
          }
          else
          {
             stopless = OrderStopLoss();
-            if(stopless>high1)
+            //Print("4---",stopless,"---high1---",high1);
+            if(stopless>high1||stopless==0)
             {
-               OrderModify(OrderTicket(),OrderOpenPrice(),high1,OrderTakeProfit(),0,Blue);
+               if(high1-Ask<50*Point)
+               {
+                  OrderModify(OrderTicket(),OrderOpenPrice(),Ask+50*Point,OrderTakeProfit(),0,Blue);
+               }
+               else
+               {
+                  OrderModify(OrderTicket(),OrderOpenPrice(),high1,OrderTakeProfit(),0,Blue);
+               }
             }
          }
       }
 	}
 }
-
+//开仓
+void OpenOrder(int nType,double postion,int magic)
+{
+   if(nType==OP_BUY)
+       OrderSend(Symbol(),OP_BUY,postion,Ask,Slippage,0,0,"buy 1.0",magic,0,CLR_NONE);
+   if(nType==OP_SELL)
+       OrderSend(Symbol(),OP_SELL,postion,Bid,Slippage,0,0,"Sell 1.0",magic,0,CLR_NONE);
+}
+void CloseOrder(int nType,int magic)
+{
+   int total=OrdersTotal();
+   for(int pos=0;pos<total;pos++)
+   {
+      if(OrderSelect(pos,SELECT_BY_POS)==false) 
+      {
+         continue;
+      }
+      else
+      {
+         if(OrderSymbol()!=Symbol())
+         {
+            continue;
+         }
+         if(OrderType()==nType&&OrderMagicNumber()==magic)
+         {
+            if(nType==OP_BUY)
+               OrderClose(OrderTicket(),OrderLots(),Bid,Slippage,CLR_NONE);
+            if(nType==OP_SELL)
+               OrderClose(OrderTicket(),OrderLots(),Ask,Slippage,CLR_NONE);
+         }
+      }
+   }  
+}
+void Auto_Trader()
+{
+   if(new_high)
+   {
+      
+   }
+   else
+   {
+      
+   }
+}
 //+------------------------------------------------------------------+
 //| expert initialization function                                   |
 //+------------------------------------------------------------------+
@@ -440,6 +536,10 @@ int init()
 {
 //----
 	InitSpeech();
+	//TextOutForSpeechByInt(1);
+	//TextOutForSpeechByInt(2);
+	//TextOutForSpeechByInt(3);
+	//TextOutForSpeechByInt(4);
 //----
  return(0);
 }
@@ -468,7 +568,7 @@ int start()
 //	下单后 止损位为上一个高点或低点 如果超过150个点位 则设在为150点
 //  如果浮动盈利超过50点，止损位则修改为开仓为
 //	如果最近的高点已经改变，止损价格也要修改 对应低点也一样
-		Move_StopLess();
- 		
+//	Move_StopLess();
+ 		Auto_Trader();
  return(0);
 } 
