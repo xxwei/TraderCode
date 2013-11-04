@@ -294,7 +294,7 @@ void CalcForZigZag()
  								if(j==6)
  								{
  									low3 = ZigzagBuffer[i];
- 									low3_pos = i
+ 									low3_pos = i;
  									//Print(high1,"--",high2,"--",high3,"--",low1,"--",low2,"--",low3);
  									break;
  								}
@@ -520,13 +520,20 @@ void CloseOrder(int nType,int magic)
 }
 void Auto_Trader()
 {
+	double Macd5Value_0 = iMACD(NULL,PERIOD_M5,12,26,9,PRICE_CLOSE,MODE_MAIN,0);
    if(new_high)
    {
-      
+      if(Macd5Value_0<0)
+      {
+      		OpenOrder(OP_SELL,0.1,125);
+      }
    }
    else
    {
-      
+      if(Macd5Value_0>0)
+      {
+      		OpenOrder(OP_BUY,0.1,126);
+      }
    }
 }
 //+------------------------------------------------------------------+
@@ -568,7 +575,8 @@ int start()
 //	下单后 止损位为上一个高点或低点 如果超过150个点位 则设在为150点
 //  如果浮动盈利超过50点，止损位则修改为开仓为
 //	如果最近的高点已经改变，止损价格也要修改 对应低点也一样
-//	Move_StopLess();
+		
  		Auto_Trader();
+ 		Move_StopLess();
  return(0);
 } 
