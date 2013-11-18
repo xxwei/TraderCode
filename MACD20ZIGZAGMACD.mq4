@@ -505,7 +505,7 @@ void AutoTrader()
    }
    if(Low[1]>MA20_1&&Macd5Value_1>Macd5Signal_1)
    {
-      if(can_open_postion)
+      if(MA20_2<MA20_1&&can_open_postion)
       {
          TextOutForSpeechByInt(7);
          can_open_postion = false;
@@ -513,7 +513,7 @@ void AutoTrader()
    }
    if(High[1]<MA20_1&&Macd5Value_1<Macd5Signal_1)
    {
-      if(can_open_postion)
+      if(MA20_2<MA20_1&&can_open_postion)
       {
          TextOutForSpeechByInt(8);
          can_open_postion = false;
