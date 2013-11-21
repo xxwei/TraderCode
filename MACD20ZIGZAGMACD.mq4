@@ -25,6 +25,7 @@ int level=3; // recounting's depth
 bool downloadhistory=false;
 bool new_high = false;
 bool can_open_postion = true;
+double   avgval = 0.0;
 double	high1;
 double	high2;
 double	high3;
@@ -223,12 +224,13 @@ int CalcZigZag()
  
    return(0);
 }
+
+
+
 void CalcForZigZag()
 {
 		int		cur_high;
  		int		cur_low;
-
- 		
  		for(int i=0;i<1000;i++)
  		{     
  				if(HighMapBuffer[i]!=0)
@@ -374,8 +376,8 @@ void CloseOrder(int nType,int magic)
          {
             continue;
          }
-         //Print("Pre Close-----",OrderType(),"----",OrderMagicNumber(),"--",magic);
-         if(OrderType()==nType&&OrderMagicNumber()==magic)
+         // Print("Pre Close-----",OrderType(),"----",OrderMagicNumber(),"--",magic);
+         if(OrderType()==nType&&(OrderMagicNumber()==magic||OrderMagicNumber()==0))
          {
             //Print("Pre Close");
             if(nType==OP_BUY)
@@ -385,6 +387,40 @@ void CloseOrder(int nType,int magic)
          }
       }
    }  
+}
+void CanOpenOrder()
+{
+   bool bflush = false;
+   int total=OrdersTotal();
+   for(int pos=0;pos<total;pos++)
+   {
+      if(OrderSelect(pos,SELECT_BY_POS)==false) 
+      {
+         continue;
+      }
+      else
+      {
+         if(OrderSymbol()!=Symbol())
+         {
+            continue;
+         }
+         can_open_postion = false;
+         bflush = true;
+      }
+   }
+   if(bflush==false)
+   {
+      can_open_postion = true;
+   }
+}
+void CalcAvg()
+{
+   avgval = 0.0;
+   for(int i=1;i<15;i++)
+   {
+      avgval = avgval+High[i]-Low[i];
+   }
+   avgval = avgval/14;
 }
 void MoveStopLoss(int maxLoss)
 {
@@ -424,7 +460,7 @@ void MoveStopLoss(int maxLoss)
                }
                else
                {
-                  OrderModify(OrderTicket(),OrderOpenPrice(),low_value,OrderTakeProfit(),0,Blue);
+                  OrderModify(OrderTicket(),OrderOpenPrice(),low_value-(Ask-Bid),OrderTakeProfit(),0,Blue);
                }
             }
             else
@@ -434,9 +470,9 @@ void MoveStopLoss(int maxLoss)
          }
          else
          {
-            if(Bid-stopless1>maxLoss*2*Point)
+            if(Bid-stopless1>(maxLoss+50)*Point)
             {
-               OrderModify(OrderTicket(),OrderOpenPrice(),Bid-maxLoss*Point,OrderTakeProfit(),0,Blue);
+               OrderModify(OrderTicket(),OrderOpenPrice(),Bid-(maxLoss-50)*Point,OrderTakeProfit(),0,Blue);
             }
          }
       }
@@ -454,7 +490,7 @@ void MoveStopLoss(int maxLoss)
                }
                else
                {
-                  OrderModify(OrderTicket(),OrderOpenPrice(),high_value,OrderTakeProfit(),0,Blue);
+                  OrderModify(OrderTicket(),OrderOpenPrice(),high_value+(Ask-Bid),OrderTakeProfit(),0,Blue);
                }
             }
             else
@@ -464,9 +500,9 @@ void MoveStopLoss(int maxLoss)
          }
          else
          {
-            if(stopless2-Ask>maxLoss*2*Point)
+            if(stopless2-Ask>(maxLoss+50)*Point)
             {
-               OrderModify(OrderTicket(),OrderOpenPrice(),Ask+maxLoss*Point,OrderTakeProfit(),0,Blue);
+               OrderModify(OrderTicket(),OrderOpenPrice(),Ask+(maxLoss-50)*Point,OrderTakeProfit(),0,Blue);
             } 
          }
       }
@@ -479,8 +515,8 @@ void AutoTrader()
    double Macd5Value_1 = iMACD(NULL,PERIOD_M5,12,26,9,PRICE_CLOSE,MODE_MAIN,1);
    double Macd5Signal_0 = iMACD(NULL,PERIOD_M5,12,26,9,PRICE_CLOSE,MODE_SIGNAL,0);
    double Macd5Signal_1 = iMACD(NULL,PERIOD_M5,12,26,9,PRICE_CLOSE,MODE_SIGNAL,1);
-   double  MA20_1 = iMA(PERIOD_M5,0,20,0,MODE_SMA,PRICE_MEDIAN,1);
-   double  MA20_2 = iMA(PERIOD_M5,0,20,0,MODE_SMA,PRICE_MEDIAN,2);
+   double  MA20_1 = iMA(PERIOD_M5,0,20,0,MODE_EMA,PRICE_MEDIAN,1);
+   double  MA20_2 = iMA(PERIOD_M5,0,20,0,MODE_EMA,PRICE_MEDIAN,2);
    if(Macd5Value_0>0&&Macd5Value_1<0)
    {
       if(MA20_2<MA20_1)
@@ -489,6 +525,7 @@ void AutoTrader()
          {
             TextOutForSpeechByInt(7);
             can_open_postion = false;
+            OpenOrder(OP_BUY,1,125);
          }
       }
    }
@@ -500,23 +537,40 @@ void AutoTrader()
          {
             TextOutForSpeechByInt(8);
             can_open_postion = false;
+            OpenOrder(OP_SELL,1,126);
          }
       }
    }
    if(Low[1]>MA20_1&&Macd5Value_1>Macd5Signal_1)
    {
-      if(MA20_2<MA20_1&&can_open_postion)
+      
+      //Print("准备关闭空仓",MA20_2,"---",MA20_1);
+      if(MA20_2<MA20_1)
       {
-         TextOutForSpeechByInt(7);
-         can_open_postion = false;
+         //Print("关闭空仓",MA20_2,"---",MA20_1);
+         CloseOrder(OP_SELL,126);
+         //can_open_postion = true;
+         if(can_open_postion&&Ask>MA20_1)
+         {
+            OpenOrder(OP_BUY,1,125);
+            TextOutForSpeechByInt(7);
+            can_open_postion = false;
+         }
       }
    }
    if(High[1]<MA20_1&&Macd5Value_1<Macd5Signal_1)
    {
-      if(MA20_2<MA20_1&&can_open_postion)
+      
+      if(MA20_2<MA20_1)
       {
-         TextOutForSpeechByInt(8);
-         can_open_postion = false;
+         CloseOrder(OP_BUY,125);
+         //can_open_postion = true;
+         if(can_open_postion&&Bid<MA20_1)
+         {
+            OpenOrder(OP_SELL,1,126);
+            TextOutForSpeechByInt(8);
+            can_open_postion = false;
+         }
       }
    }
    
@@ -527,7 +581,7 @@ void AutoTrader()
 int init()
   {
 //----
-   
+   InitSpeech();
 //----
    return(0);
   }
@@ -547,7 +601,7 @@ int deinit()
 int start()
   {
 //----
-   
+   CanOpenOrder();
    CalcZigZag();
    CalcForZigZag();
    AutoTrader();
