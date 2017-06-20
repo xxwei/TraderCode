@@ -1,9 +1,12 @@
 #coding=utf-8
 from pymongo import MongoClient
 import tushare as ts
+import json
 import datetime
 from sklearn.svm import SVR
 import matplotlib.pyplot as plt
+
+
 client = MongoClient('172.16.12.3', 27017)
 db_name = 'Stock'
 db = client[db_name]
@@ -25,9 +28,28 @@ print(ts.__version__)
 #print(ts.get_today_all())
 
 sh000001 = ts.get_k_data("000001",index=True)
+
+print(sh000001.head().as_matrix())
+print(sh000001[:20])
+soho = sh000001.iloc[:4,1:6]
+print(soho)
+print(soho.as_matrix())
+
+df = ts.shibor_data() #取当前年份的数据
+#df = ts.shibor_data(2014) #取2014年的数据
+#df.sort('date', ascending=False).head(10)
+print(df[:10])
+#df = ts.profit_data(top='all')
+#df.sort('shares',ascending=False)
+#print(df[:10])
+#all = ts.get_today_all();
+#print(all[:20])
 #print(sh000001.index.size)
 #print(sh000001.columns.size)
-
+df = ts.get_tick_data('600848',date='2014-12-22',src='sn')
+print(df.head())
+#collection_sh.insert(json.loads(df.to_json(orient='records')))
+'''
 date = sh000001["date"]
 openv = sh000001["open"]
 closev = sh000001["close"]
@@ -80,3 +102,4 @@ plt.title("SVR")
 plt.legend()
 plt.show()
 
+'''
