@@ -1,12 +1,20 @@
 # coding=utf-8
 import numpy as np
-from keras.models import Sequential
+'''
 from keras.layers import Dense
 from keras.layers import Activation
 from keras.layers import Dropout
 from keras.layers import LSTM
 from keras.optimizers import SGD
 import keras
+import tushare as ts
+'''
+from tensorflow.contrib import keras
+from tensorflow.contrib.keras.python.keras.models import Sequential
+from tensorflow.contrib.keras.python.keras.layers import Dense
+from tensorflow.contrib.keras.python.keras.layers import LSTM
+
+
 
 
 '''
@@ -44,13 +52,14 @@ tbCallBack  = keras.callbacks.TensorBoard(log_dir='./logs', histogram_freq=0,wri
 # Note that we have to provide the full batch_input_shape since the network is stateful.
 # the sample of index i in batch k is the follow-up for the sample i in batch k-1.
 model = Sequential()
-#tbCallBack.set_model(model)
+
+
+
 model.add(LSTM(32, return_sequences=True, stateful=True,
                batch_input_shape=(batch_size, timesteps, data_dim)))
 model.add(LSTM(32, return_sequences=True, stateful=True))
 model.add(LSTM(32, stateful=True))
 model.add(Dense(10, activation='softmax'))
-
 model.compile(loss='categorical_crossentropy',
               optimizer='rmsprop',
               metrics=['accuracy'])
@@ -63,9 +72,12 @@ y_train = np.random.random((batch_size * 10, num_classes))
 x_val = np.random.random((batch_size * 3, timesteps, data_dim))
 y_val = np.random.random((batch_size * 3, num_classes))
 
+tbCallBack.set_model(model)
 model.fit(x_train, y_train,
           batch_size=batch_size, epochs=5, shuffle=False,
-          validation_data=(x_val, y_val),callbacks=[tbCallBack])
+          validation_data=(x_val, y_val))#,callbacks=[tbCallBack])
 
 model.evaluate(x_val,y_val,batch_size=batch_size)
-
+ext = model.evaluate(x_val,y_val,batch_size=batch_size)
+ext = model.predict_classes(x_val,batch_size=batch_size)
+print(ext)

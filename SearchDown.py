@@ -31,6 +31,7 @@ sh000001 = ts.get_k_data("000001",index=True)
 
 print(sh000001.head().as_matrix())
 print(sh000001[:20])
+print (sh000001.index.size)
 soho = sh000001.iloc[:4,1:6]
 print(soho)
 print(soho.as_matrix())
