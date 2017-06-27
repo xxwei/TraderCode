@@ -52,9 +52,6 @@ tbCallBack  = keras.callbacks.TensorBoard(log_dir='./logs', histogram_freq=0,wri
 # Note that we have to provide the full batch_input_shape since the network is stateful.
 # the sample of index i in batch k is the follow-up for the sample i in batch k-1.
 model = Sequential()
-
-
-
 model.add(LSTM(32, return_sequences=True, stateful=True,
                batch_input_shape=(batch_size, timesteps, data_dim)))
 model.add(LSTM(32, return_sequences=True, stateful=True))
