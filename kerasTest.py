@@ -49,6 +49,8 @@ start = time.time()
 model.compile(loss="mse", optimizer="rmsprop")
 print("Compilation Time : ", time.time() - start)
 tbCallBack.set_model(model)
+model.fit(train_x,train_y,batch_size=30,epochs=2)
+
 '''
 model.add(Dense(128,activation='relu',input_shape=[None,5],input_dim=2))
 model.add(Dense(3,activation='softmax'))
