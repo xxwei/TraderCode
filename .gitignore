@@ -15,7 +15,7 @@ local.properties
 .classpath
 .settings/
 .loadpath
-
+.xml
 # External tool builders
 .externalToolBuilders/
 
@@ -213,3 +213,10 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+.xml
+.idea/misc.xml
+.idea/modules.xml
+.vscode/settings.json
+.idea/TraderCode.iml
+.idea/workspace.xml
+.vscode/launch.json
