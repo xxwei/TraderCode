@@ -220,3 +220,4 @@ pip-log.txt
 .idea/TraderCode.iml
 .idea/workspace.xml
 .vscode/launch.json
+.Rproj.user
