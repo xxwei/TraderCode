@@ -12,7 +12,7 @@ db_name = 'Stock'
 db = client[db_name]
 collection_sh = db['SH']
 
-
+cons = ts.get_apis()
 print(ts.__version__)
 #print(ts.get_stock_basics())
 #print(ts.get_latest_news(top=5,show_content=True).title[0])
@@ -39,7 +39,6 @@ print(soho.as_matrix())
 df = ts.shibor_data() #取当前年份的数据
 #df = ts.shibor_data(2014) #取2014年的数据
 #df.sort('date', ascending=False).head(10)
-print(df[:10])
 #df = ts.profit_data(top='all')
 #df.sort('shares',ascending=False)
 #print(df[:10])

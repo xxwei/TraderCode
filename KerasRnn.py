@@ -10,9 +10,9 @@ import keras
 import tushare as ts
 '''
 from tensorflow.contrib import keras
-from tensorflow.contrib.keras.python.keras.models import Sequential
-from tensorflow.contrib.keras.python.keras.layers import Dense
-from tensorflow.contrib.keras.python.keras.layers import LSTM
+from tensorflow.contrib.keras.api.keras.models import Sequential
+from tensorflow.contrib.keras.api.keras.layers import Dense
+from tensorflow.contrib.keras.api.keras.layers import LSTM
 
 
 

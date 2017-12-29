@@ -1,10 +1,10 @@
 from tensorflow.contrib import keras
 import tensorflow as tf
-from tensorflow.contrib.keras.python.keras.models import Sequential
-from tensorflow.contrib.keras.python.keras.layers import Dense
-from tensorflow.contrib.keras.python.keras.layers import LSTM
-from tensorflow.contrib.keras.python.keras.layers import Dropout
-from tensorflow.contrib.keras.python.keras.layers import Activation
+from tensorflow.contrib.keras.api.keras.models import Sequential
+from tensorflow.contrib.keras.api.keras.layers import Dense
+from tensorflow.contrib.keras.api.keras.layers import LSTM
+from tensorflow.contrib.keras.api.keras.layers import Dropout
+from tensorflow.contrib.keras.api.keras.layers import Activation
 import tushare as ts
 import numpy as np
 import time
