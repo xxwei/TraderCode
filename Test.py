@@ -106,16 +106,17 @@ showrange = iv;
 #print(showrange);
 i = 0;
 for item in list:
-    try:
-        itemvar = getitem(item[0],"Data_ACWorthTrend");
-        for itemvvar in itemvar:
-            itemvvar[0] = datetime.datetime.fromtimestamp(float(itemvvar[0]/1000));
-        tp = pd.DataFrame(itemvar,columns=["date","value"]);
-        tp['code'] = item[0];
-        showrange = pd.concat([showrange,tp]);
-        print("loading "+item[2]+" code "+item[0]);
-    except Exception as err:
-        print(err)
+    if(item[3]=="股票型" or item[3]=="股票指数" or item[3]=="混合型"):
+        try:
+            itemvar = getitem(item[0],"Data_ACWorthTrend");
+            for itemvvar in itemvar:
+                itemvvar[0] = datetime.datetime.fromtimestamp(float(itemvvar[0]/1000));
+            tp = pd.DataFrame(itemvar,columns=["date","value"]);
+            tp['code'] = item[0];
+            showrange = pd.concat([showrange,tp]);
+            print("loading "+item[2]+" code "+item[0]);
+        except Exception as err:
+            print(err)
     i=i+1;
     if(i%10==0):
         p = ggplot(aes(x='date', y='value', colour='code'), data=showrange) + geom_line() + ggtitle(u'走势');

@@ -34,3 +34,9 @@ print(BMI)
 require(ggplot2)
 
 ggplot(BMI,aes(x="height",y="weight",color="Age"))+geom_point()
+
+
+library(tensorflow)
+sess = tf$Session()
+hello <- tf$constant('Hello, TensorFlow!')
+sess$run(hello)
