@@ -50,7 +50,9 @@ print(item["profit"]["series"][0]["data"][2]["y"]);
 
 from choosefund import savemongo
 from choosefund import calcbymongo
+from choosefund import top100
 from funddata import sina
+
 
 
 
@@ -59,11 +61,12 @@ from funddata import sina
 #k1,k2,k3 = eastmoney.getitem("002803","Data_currentFundManager","Data_fluctuationScale","Data_holderStructure")
 
 
-#savemongo.updateraw_fundvalue();
-
+#savemongo.updateraw_mangerdata();
 #calcbymongo.clac_agr_stddev();
-flist = sina.getlist();
-print(flist[0:1]);
+#calcbymongo.clac_agr_stddev();
+#flist = sina.getlist();
+#print(flist[0:1]);
+top100.top100avghtml("12.html");
 
 
 
