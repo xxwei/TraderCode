@@ -30,20 +30,22 @@ def top100avghtml(htmlname):
     # 基金
     fddb = client.fddb;
     # 基金列表
-    flist = list(fddb.rawfundlist.find({"timedeta":{"$gt":200},"mangeravr":{"$ne":"暂无数据"},"code":{"$ne":"000011"}}).sort("avg",pymongo.DESCENDING).limit(500));
+    flist = list(fddb.rawfundlist.find({"timedeta":{"$gt":200},"mangeravr":{"$ne":"暂无数据"},"code":{"$ne":"000011"}}).sort("avg",pymongo.DESCENDING).limit(100));
     df = pd.DataFrame(flist);
     del df['_id'];
-    print(df);
+    print(df[30:70]);
     # Create a trace
     trace = go.Scatter(
         x=df["avg"],
         y=df["stddev"],
+        name=df["name"],
         mode='markers',
         marker=dict(
-            size=df["mangeravr"],
+            size=df["timedeta"]/50.0,
             color=df["mangerstar"],  # set color equal to a variable
             colorscale='Viridis',
             showscale=True
+
         )
     )
 
