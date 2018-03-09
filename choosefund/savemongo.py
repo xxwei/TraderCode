@@ -1,5 +1,5 @@
 #coding=utf-8
-
+import pymongo
 from pymongo import MongoClient
 from funddata import eastmoney
 from datetime import datetime
@@ -29,18 +29,20 @@ def updateraw_fundvalue():
     # 基金
     fddb = client.fddb;
     #fddb.fundworth.remove({})
-    last_update = datetime(1970, 1, 1, 0, 0);
-    if fddb.fundworth.count() > 1:
-        value = fddb.fundworth.find({"code":"000011"});
-        last_update = list(value)[-1]['time'];
 
-    print("上次更新时间",last_update);
 
     flist = fddb.rawfundlist.find();
     for item in flist:
         if (item["type"] == "股票型" or item["type"] == "股票指数" or item["type"] == "混合型"):
             try:
+                value = fddb.fundworth.find({"code": item["code"]}).sort("time",pymongo.DESCENDING);
+                last_update = list(value)[0]['time'];
+            except Exception as err:
+                print(err);
+                last_update = datetime(1970, 1, 1, 0, 0);
+            try:
                 print("update  " + item["name"] + " code " + item["code"]);
+                print("上次更新时间", last_update);
                 itemvalues,manger= eastmoney.getitem(item["code"], "Data_ACWorthTrend","Data_currentFundManager");
                 firstvalue = itemvalues[0][1];
             except Exception as err:

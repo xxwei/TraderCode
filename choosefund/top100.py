@@ -33,12 +33,19 @@ def top100avghtml(htmlname):
     flist = list(fddb.rawfundlist.find({"timedeta":{"$gt":200},"mangeravr":{"$ne":"暂无数据"},"code":{"$ne":"000011"}}).sort("avg",pymongo.DESCENDING).limit(100));
     df = pd.DataFrame(flist);
     del df['_id'];
-    print(df[30:70]);
+    stddev = df['stddev']
+    df.drop(labels=['stddev'], axis=1, inplace=True)
+    df.insert(0, 'stddev', stddev)
+
+    name = df['mangerstar']
+    df.drop(labels=['mangerstar'], axis=1, inplace=True)
+    df.insert(0, 'mangerstar', name)
+
+    print(df[0:30]);
     # Create a trace
     trace = go.Scatter(
         x=df["avg"],
         y=df["stddev"],
-        name=df["name"],
         mode='markers',
         marker=dict(
             size=df["timedeta"]/50.0,
@@ -51,6 +58,24 @@ def top100avghtml(htmlname):
 
     data = [trace]
 
+    layout = go.Layout(
+        title='Stats of USA States',
+        hovermode='closest',
+        xaxis=dict(
+            title='Pop',
+            ticklen=5,
+            zeroline=False,
+            gridwidth=2,
+        ),
+        yaxis=dict(
+            title='Rank',
+            ticklen=5,
+            gridwidth=2,
+        ),
+        showlegend=False
+    )
+
+    fig = go.Figure(data=data, layout=layout)
     # Plot and embed in ipython notebook!
-    # py.iplot(data, filename='basic-scatter')
-    plotly.offline.plot(data, filename=htmlname)
+    #plotly.offline.iplot(fig)
+    plotly.offline.plot(data,filename=htmlname)
